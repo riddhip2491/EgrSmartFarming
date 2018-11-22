@@ -1,5 +1,6 @@
 package com.egr.smartfarming.configuration;
 
+import com.egr.smartfarming.service.RestService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -14,6 +15,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
 		BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+		RestService restService = new RestService();
 		return bCryptPasswordEncoder;
 	}
 

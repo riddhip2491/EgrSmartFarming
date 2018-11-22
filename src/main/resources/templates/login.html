@@ -23,7 +23,7 @@
     <link th:href="@{css/style.css}" rel="stylesheet" />
 </head>
 
-<body class="gray-bg">
+<body class="gray-bg" >
 
 <div class="middle-box text-center loginscreen animated fadeInDown">
     <div>
@@ -42,7 +42,7 @@
             <div th:if="${alreadyRegisteredMessage}"
                  class="alert alert-danger" role="alert"
                  th:text="${alreadyRegisteredMessage}"></div>
-            <legend>Please Login</legend>
+
             <div th:if="${param.error}" class="alert alert-error">
                 Invalid username and password.
             </div>
@@ -97,10 +97,24 @@
                     class="btn btn-primary block full-width m-b" >Login</button>
 
             <a class="btn btn-link" href="http://localhost:8080/register">Not having account?</a>
+            <script type="text/javascript">
+
+                navigator.geolocation.getCurrentPosition(success);
+                function success(position){
+                    document.getElementsByName("latitude")[0].value = position.coords.latitude;
+                    document.getElementsByName("longitude")[0].value = position.coords.longitude;
+                }
+
+            </script>
+
+                <input type="hidden" id="latitude" name="latitude" >
+                <input type="hidden" id="longitude" name="longitude">
+
         </form>
         <p class="m-t">
 
         </p>
+
     </div>
 </div>
 

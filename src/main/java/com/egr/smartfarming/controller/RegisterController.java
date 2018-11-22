@@ -7,8 +7,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import com.egr.smartfarming.model.User;
+import com.egr.smartfarming.model.UserGeoLocation;
+import com.egr.smartfarming.model.Weather;
+import com.egr.smartfarming.service.RestService;
 import com.egr.smartfarming.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -30,13 +34,25 @@ public class RegisterController {
 
 	private UserService userService;
 	private EmailService emailService;
+
+    private Weather weather;
+    @Value("${openweather.apikey}")
+    private String weatherApiKey;
+
+    @Value("${openweather.url}")
+    private String weatherApi;
+
+
+    private RestService restService;
 	
 	@Autowired
 	public RegisterController(BCryptPasswordEncoder bCryptPasswordEncoder,
-			UserService userService, EmailService emailService) {
+			UserService userService, EmailService emailService){
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 		this.userService = userService;
 		this.emailService = emailService;
+		this.restService = new RestService();
+		this.weather = new Weather();
 	}
 	
 	// Return registration form template
@@ -154,15 +170,13 @@ public class RegisterController {
 	}
 
     @RequestMapping(value="/login1", method = RequestMethod.POST)
-    public ModelAndView processLoginForm(ModelAndView modelAndView,  @Valid User user, BindingResult bindingResult, HttpServletRequest request){
+    public ModelAndView processLoginForm(ModelAndView modelAndView, @Valid UserGeoLocation user, BindingResult bindingResult, HttpServletRequest request,RedirectAttributes redir){
         // Lookup user in database by e-mail
-        System.out.println("Hello KArtik Ganda");
         System.out.println("Request param: " + user.getEmail());
         User userExists = userService.findByEmail(user.getEmail());
-
-
-        System.out.println(userExists);
-     //   System.out.println(usernameExists);
+       // System.out.println(userExists);
+        weather.setLatitude(user.getLatitude());
+        weather.setLongitude(user.getLongitude());
         if (userExists == null) {
             modelAndView.addObject("alreadyRegisteredMessage", "Oops!  There is no user registered with the email provided.");
             modelAndView.setViewName("login");
@@ -172,7 +186,10 @@ public class RegisterController {
 
             if(bCryptPasswordEncoder.matches(user.getPassword(),userExists.getPassword())){
                 //modelAndView.addObject("confirmationMessage", "Email and Password match successfully");
-                modelAndView.setViewName("redirect:home");
+                modelAndView.setViewName("redirect:dashboard");
+               // modelAndView.getModelMap().addAttribute("temperature", weather.getCurrentTemperature());
+              modelAndView.getModelMap().addAttribute("email",user.getEmail());
+               /// System.out.println("latitude: " + latitude);
             }else{
                 modelAndView.addObject("alreadyRegisteredMessage", "Email or Password do not match");
                 modelAndView.setViewName("login");
@@ -185,17 +202,42 @@ public class RegisterController {
 
 	@RequestMapping(value="/login", method = RequestMethod.GET)
 	public ModelAndView showLoginPage(ModelAndView modelAndView, User user){
-		modelAndView.addObject("user", user);
+        modelAndView.addObject("user", user);
 		modelAndView.setViewName("login");
 		return modelAndView;
 	}
 
-    @RequestMapping(value="/home", method = RequestMethod.GET)
-    public ModelAndView showHomePage(ModelAndView modelAndView, User user){
+    @RequestMapping(value="/dashboard", method = RequestMethod.GET)
+    public ModelAndView showHomePage(ModelAndView modelAndView, UserGeoLocation user){
+        /*float latitude  = user.getLatitude();
+        float longitude = user.getLongitude();
+        String email = user.getEmail();*/
+        //Getting curent weather condition
+        final String uri = weatherApi + "?lat=" + weather.getLatitude() + "&units=imperial" + "&lon=" + weather.getLongitude() + "&APPID=" + weatherApiKey;
+        restService.getLocationObject(uri,weather);
+        System.out.println("Temperature: " + weather.getCurrentTemperature());
+        System.out.println("Description: " + weather.getDescription());
+        //End
         modelAndView.addObject("user", user);
-        modelAndView.setViewName("home");
+        modelAndView.addObject("temperature", weather.getCurrentTemperature());
+        modelAndView.addObject("description", weather.getDescription());
+        modelAndView.setViewName("dashboard");
         return modelAndView;
     }
+
+	@RequestMapping(value="/maps", method = RequestMethod.GET)
+	public ModelAndView showMap(ModelAndView modelAndView, User user){
+		modelAndView.addObject("user", user);
+		modelAndView.setViewName("maps");
+		return modelAndView;
+	}
+
+	@RequestMapping(value="/demo", method = RequestMethod.GET)
+	public ModelAndView shoeWeather(ModelAndView modelAndView, User user){
+		modelAndView.addObject("user", user);
+		modelAndView.setViewName("demo");
+		return modelAndView;
+	}
 
 	
 }
