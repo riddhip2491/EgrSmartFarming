@@ -6,11 +6,8 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import com.egr.smartfarming.model.User;
-import com.egr.smartfarming.model.UserGeoLocation;
-import com.egr.smartfarming.model.Weather;
-import com.egr.smartfarming.service.RestService;
-import com.egr.smartfarming.service.UserService;
+import com.egr.smartfarming.model.*;
+import com.egr.smartfarming.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -23,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.egr.smartfarming.service.EmailService;
 import com.nulabinc.zxcvbn.Strength;
 import com.nulabinc.zxcvbn.Zxcvbn;
 
@@ -44,15 +40,21 @@ public class RegisterController {
 
 
     private RestService restService;
+
+    private RainfallService rainfallService;
+    private SoilMoistAWSService soilMoistAWSService;
 	
 	@Autowired
 	public RegisterController(BCryptPasswordEncoder bCryptPasswordEncoder,
-			UserService userService, EmailService emailService){
+			UserService userService, EmailService emailService, RainfallService rainfallService,
+                              SoilMoistAWSService soilMoistAWSService){
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 		this.userService = userService;
 		this.emailService = emailService;
 		this.restService = new RestService();
 		this.weather = new Weather();
+		this.rainfallService = rainfallService;
+		this.soilMoistAWSService = soilMoistAWSService;
 	}
 	
 	// Return registration form template
@@ -179,18 +181,27 @@ public class RegisterController {
         weather.setLongitude(user.getLongitude());
         if (userExists == null) {
             modelAndView.addObject("alreadyRegisteredMessage", "Oops!  There is no user registered with the email provided.");
+
+			User userObj = new User();
+			userObj.setEmail(user.getEmail());
+			userObj.setPassword(user.getPassword());
+			modelAndView.addObject("user",userObj);
             modelAndView.setViewName("login");
             bindingResult.reject("email");
         }else{
-           // User passwordCorrect = userService.
+
 
             if(bCryptPasswordEncoder.matches(user.getPassword(),userExists.getPassword())){
-                //modelAndView.addObject("confirmationMessage", "Email and Password match successfully");
+
                 modelAndView.setViewName("redirect:dashboard");
-               // modelAndView.getModelMap().addAttribute("temperature", weather.getCurrentTemperature());
+
               modelAndView.getModelMap().addAttribute("email",user.getEmail());
-               /// System.out.println("latitude: " + latitude);
+
             }else{
+				User userObj = new User();
+				userObj.setEmail(user.getEmail());
+				userObj.setPassword(user.getPassword());
+				modelAndView.addObject("user",userObj);
                 modelAndView.addObject("alreadyRegisteredMessage", "Email or Password do not match");
                 modelAndView.setViewName("login");
             }
@@ -209,18 +220,23 @@ public class RegisterController {
 
     @RequestMapping(value="/dashboard", method = RequestMethod.GET)
     public ModelAndView showHomePage(ModelAndView modelAndView, UserGeoLocation user){
-        /*float latitude  = user.getLatitude();
-        float longitude = user.getLongitude();
-        String email = user.getEmail();*/
         //Getting curent weather condition
         final String uri = weatherApi + "?lat=" + weather.getLatitude() + "&units=imperial" + "&lon=" + weather.getLongitude() + "&APPID=" + weatherApiKey;
         restService.getLocationObject(uri,weather);
-        System.out.println("Temperature: " + weather.getCurrentTemperature());
-        System.out.println("Description: " + weather.getDescription());
         //End
+
+		//Get Latest Rain Data From AWS
+		Rainfall rainfall = rainfallService.getLatestRainData();
+		System.out.println("Latest Battery Voltage: " + rainfall.getBatteryVoltage());
+		//End
+
+        //Get Latest Soil Moisture Data from AWs
+       SoilMoisture soilMoisture = soilMoistAWSService.getLatestSoilMoistData();
+        System.out.println("Latest Soil Moisture DAtA: " + soilMoisture.getBatteryVoltage());
         modelAndView.addObject("user", user);
         modelAndView.addObject("temperature", weather.getCurrentTemperature());
         modelAndView.addObject("description", weather.getDescription());
+		modelAndView.addObject("rainaws",soilMoisture.getBatteryVoltage());
         modelAndView.setViewName("dashboard");
         return modelAndView;
     }

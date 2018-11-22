@@ -215,7 +215,7 @@
                                     <div class="col-xs-7">
                                         <div class="numbers">
 
-                                            <p>Weather</p>
+                                            <p th:text="${description}"></p>
                                             <div id="currentTemperature" th:text="${temperature}"></div>
 
                                         </div>
@@ -244,7 +244,7 @@
                                     <div class="col-xs-7">
                                         <div class="numbers">
                                             <p>Soil Moisture</p>
-                                            +45
+                                            <div id="RainAWS" th:text="${rainaws}"></div>
                                         </div>
                                     </div>
                                 </div>
