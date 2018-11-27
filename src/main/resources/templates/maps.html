@@ -27,7 +27,7 @@
     <!--  Fonts and icons     -->
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Muli:400,300' rel='stylesheet' type='text/css'>
-    <link href="assets/css/themify-icons.css" rel="stylesheet">
+    <link th:href="@{css/themify-icons.css}" rel="stylesheet">
     <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.2.0/build/ol.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script type="text/javascript">
@@ -79,11 +79,12 @@
                     </a>
                 </li>
                 <li>
-                    <a href="table.html">
-                        <i class="ti-view-list-alt"></i>
-                        <p>Table List</p>
+                    <a href="decision.html">
+                        <i class="ti-light-bulb"></i>
+                        <p>Decide Crop</p>
                     </a>
                 </li>
+              <!--
                 <li>
                     <a href="typography.html">
                         <i class="ti-text"></i>
@@ -95,14 +96,14 @@
                         <i class="ti-pencil-alt2"></i>
                         <p>Icons</p>
                     </a>
-                </li>
+                </li>-->
                 <li class="active">
                     <a href="maps.html">
                         <i class="ti-map"></i>
                         <p>Maps</p>
                     </a>
                 </li>
-                <li>
+                <!--<li>
                     <a href="notifications.html">
                         <i class="ti-bell"></i>
                         <p>Notifications</p>
@@ -113,7 +114,7 @@
                         <i class="ti-export"></i>
                         <p>Upgrade to PRO</p>
                     </a>
-                </li>
+                </li>-->
             </ul>
         </div>
     </div>
@@ -132,7 +133,7 @@
                 </div>
                 <div class="collapse navbar-collapse">
                     <ul class="nav navbar-nav navbar-right">
-                        <li>
+                        <!--<li>
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="ti-panel"></i>
                                 <p>Stats</p>
@@ -152,11 +153,11 @@
                                 <li><a href="#">Notification 4</a></li>
                                 <li><a href="#">Another notification</a></li>
                             </ul>
-                        </li>
+                        </li>-->
                         <li>
-                            <a href="#">
+                            <a th:href="@{/login}">
                                 <i class="ti-settings"></i>
-                                <p>Settings</p>
+                                <p>Logout</p>
                             </a>
                         </li>
                     </ul>

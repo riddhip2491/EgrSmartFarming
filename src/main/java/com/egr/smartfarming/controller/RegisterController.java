@@ -1,9 +1,9 @@
 package com.egr.smartfarming.controller;
 
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import com.egr.smartfarming.model.*;
@@ -43,11 +43,18 @@ public class RegisterController {
 
     private RainfallService rainfallService;
     private SoilMoistAWSService soilMoistAWSService;
+
+    private StartUpService startUpService;
+
+    private DecisionService decisionService;
+
+    HttpSession session;
 	
 	@Autowired
 	public RegisterController(BCryptPasswordEncoder bCryptPasswordEncoder,
 			UserService userService, EmailService emailService, RainfallService rainfallService,
-                              SoilMoistAWSService soilMoistAWSService){
+                              SoilMoistAWSService soilMoistAWSService, StartUpService startUpService,
+                              DecisionService decisionService){
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 		this.userService = userService;
 		this.emailService = emailService;
@@ -55,6 +62,8 @@ public class RegisterController {
 		this.weather = new Weather();
 		this.rainfallService = rainfallService;
 		this.soilMoistAWSService = soilMoistAWSService;
+		this.startUpService = startUpService;
+		this.decisionService = decisionService;
 	}
 	
 	// Return registration form template
@@ -176,9 +185,11 @@ public class RegisterController {
         // Lookup user in database by e-mail
         System.out.println("Request param: " + user.getEmail());
         User userExists = userService.findByEmail(user.getEmail());
+        request.getSession().setAttribute("user", user);
        // System.out.println(userExists);
         weather.setLatitude(user.getLatitude());
         weather.setLongitude(user.getLongitude());
+        //session.setAttribute("user", user);
         if (userExists == null) {
             modelAndView.addObject("alreadyRegisteredMessage", "Oops!  There is no user registered with the email provided.");
 
@@ -219,9 +230,15 @@ public class RegisterController {
 	}
 
     @RequestMapping(value="/dashboard", method = RequestMethod.GET)
-    public ModelAndView showHomePage(ModelAndView modelAndView, UserGeoLocation user){
-        //Getting curent weather condition
-        final String uri = weatherApi + "?lat=" + weather.getLatitude() + "&units=imperial" + "&lon=" + weather.getLongitude() + "&APPID=" + weatherApiKey;
+    public ModelAndView showHomePage(ModelAndView modelAndView, UserGeoLocation user, HttpServletRequest request){
+		if(request.getSession().getAttribute("user")== null){
+		    user = null;
+            modelAndView.setViewName("redirect:login");
+            return modelAndView;
+        }
+
+		//Getting curent weather condition
+        final String uri = weatherApi + "?lat=" + weather.getLatitude() + "&units=metric" + "&lon=" + weather.getLongitude() + "&APPID=" + weatherApiKey;
         restService.getLocationObject(uri,weather);
         //End
 
@@ -233,7 +250,7 @@ public class RegisterController {
         //Get Latest Soil Moisture Data from AWs
        SoilMoisture soilMoisture = soilMoistAWSService.getLatestSoilMoistData();
         System.out.println("Latest Soil Moisture DAtA: " + soilMoisture.getBatteryVoltage());
-        modelAndView.addObject("user", user);
+        //modelAndView.addObject("user", user);
         modelAndView.addObject("temperature", weather.getCurrentTemperature());
         modelAndView.addObject("description", weather.getDescription());
 		modelAndView.addObject("rainaws",soilMoisture.getBatteryVoltage());
@@ -242,18 +259,81 @@ public class RegisterController {
     }
 
 	@RequestMapping(value="/maps", method = RequestMethod.GET)
-	public ModelAndView showMap(ModelAndView modelAndView, User user){
-		modelAndView.addObject("user", user);
+	public ModelAndView showMap(ModelAndView modelAndView,  HttpServletRequest request){
+		if(request.getSession().getAttribute("user")== null){
+			modelAndView.setViewName("redirect:login");
+			System.out.println("SEssion null");
+			return modelAndView;
+		}
+		//modelAndView.addObject("user", user);
 		modelAndView.setViewName("maps");
 		return modelAndView;
 	}
 
-	@RequestMapping(value="/demo", method = RequestMethod.GET)
-	public ModelAndView shoeWeather(ModelAndView modelAndView, User user){
+	@RequestMapping(value="/user", method = RequestMethod.GET)
+	public ModelAndView showUserProfile(ModelAndView modelAndView, User user, HttpServletRequest request){
+		if(request.getSession().getAttribute("user")== null){
+			modelAndView.setViewName("redirect:login");
+			System.out.println("SEssion null");
+			return modelAndView;
+		}
 		modelAndView.addObject("user", user);
-		modelAndView.setViewName("demo");
+		modelAndView.setViewName("user");
 		return modelAndView;
 	}
 
-	
+    @RequestMapping(value="/decision", method = RequestMethod.GET)
+    public ModelAndView showDecision(ModelAndView modelAndView, User user,HttpServletRequest request){
+        if(request.getSession().getAttribute("user")== null){
+            modelAndView.setViewName("redirect:login");
+            System.out.println("SEssion null");
+            return modelAndView;
+        }
+	    //add soil type
+        ArrayList<String> soils =startUpService.getSoilTypes();
+        //Iterator iterator = soils.iterator();
+        modelAndView.addObject("soilTypes", soils);
+        modelAndView.addObject("user", user);
+        modelAndView.setViewName("decision");
+        return modelAndView;
+    }
+
+    @RequestMapping(value = "/decision", method = RequestMethod.POST)
+    public ModelAndView processDecision(ModelAndView modelAndView, @Valid Decision decision, @RequestParam String latitude,HttpServletRequest request, @RequestParam String longitude, BindingResult bindingResult,RedirectAttributes redir){
+		if(request.getSession().getAttribute("user")== null){
+			modelAndView.setViewName("redirect:login");
+			System.out.println("SEssion null");
+			return modelAndView;
+		}
+    	System.out.println("Entering into Decison Post");
+        String getSoil= decision.getSoilName();
+        String lat = latitude;
+        String lon = longitude;
+        //Get Decision
+        String getDecision = decisionService.processDecision(decision, latitude, longitude);
+
+
+        modelAndView.addObject("confirmationMessage", getDecision);
+        //add soil type
+        ArrayList<String> soils =startUpService.getSoilTypes();
+        modelAndView.addObject("soilTypes", soils);
+
+        modelAndView.setViewName("decision");
+        return modelAndView;
+    }
+
+    @RequestMapping(value = "/logout", method = RequestMethod.GET)
+	public ModelAndView logout(ModelAndView modelAndView,HttpServletRequest request){
+
+		if(request.getSession().getAttribute("user")== null){
+			request.removeAttribute("user");
+			modelAndView.setViewName("redirect:login");
+			System.out.println("SEssion null");
+		}else {
+			request.getSession().removeAttribute("user");
+
+			modelAndView.setViewName("redirect:login");
+		}
+		return modelAndView;
+	}
 }

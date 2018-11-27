@@ -48,7 +48,7 @@ public class RestService {
             while (iterator.hasNext()) {
                 Object nextObj = iterator.next();
                 JSONObject jsonObject1 = (JSONObject) nextObj;
-                weatherDesc = (String) jsonObject1.get("description");
+                    weatherDesc = (String) jsonObject1.get("description");
             }
 
             weatherObj.setCurrenttimeinmillis(System.currentTimeMillis());
