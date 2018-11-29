@@ -62,6 +62,22 @@ public class RestService {
         return weatherObj;
     }
 
+    public String getLocationName(String uri, String latitude, String longitude){
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String result = restTemplate.getForObject(uri, String.class);
+            Object object = new JSONParser().parse(result);
+            JSONObject jsonObject = (JSONObject) object;
+            String city = (String)jsonObject.get("name");
+            return city;
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
     public void saveWeather(Weather weather) {
         weatherRepository.save(weather);
     }

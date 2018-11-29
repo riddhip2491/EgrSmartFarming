@@ -6,7 +6,9 @@
 	<link rel="icon" type="image/png" sizes="96x96" href="assets/img/favicon.png">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
-	<title>Smart Farming</title>
+    <link rel="icon" href="favicon.ico" />
+
+    <title>Smart Farming</title>
 
 	<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
     <meta name="viewport" content="width=device-width" />
@@ -29,7 +31,23 @@
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Muli:400,300' rel='stylesheet' type='text/css'>
     <link th:href="@{css/themify-icons.css}" rel="stylesheet">
+    <script type="text/javascript">
+        function getLonLat(){
+            navigator.geolocation.getCurrentPosition(success, error);
+            function success(position){
+                latitude = position.coords.latitude;
 
+                longitude = position.coords.longitude;
+                window.location ="/getLocation?" + "lat="+ latitude + "&lon=" + longitude;
+            }
+
+        }
+
+
+        function error() {
+            location.innerHTML = "Unable to retrieve your location";
+        }
+    </script>
 </head>
 <body>
 
@@ -50,19 +68,19 @@
 
             <ul class="nav">
                 <li>
-                    <a href="dashboard.html">
+                    <a th:href="@{/dashboard}">
                         <i class="ti-panel"></i>
                         <p>Dashboard</p>
                     </a>
                 </li>
                 <li>
-                    <a href="user.html">
+                    <a th:href="@{/user}">
                         <i class="ti-user"></i>
                         <p>User Profile</p>
                     </a>
                 </li>
                 <li class="active">
-                    <a href="decision.html">
+                    <a th:href="@{/decision}">
                         <i class="ti-view-list-alt"></i>
                         <p>Decide Crop</p>
                     </a>
@@ -152,8 +170,6 @@
               th:object="${decision}" method="post" class="m-t" role="form"
               data-toggle="validator">
 
-            <div th:if="${confirmationMessage}" class="alert alert-success"
-                 role="alert" th:text=${confirmationMessage}> </div>
             <div th:if="${alreadyRegisteredMessage}"
                  class="alert alert-danger" role="alert"
                  th:text="${alreadyRegisteredMessage}"></div>
@@ -180,6 +196,28 @@
             </div>
         <div class="content">
             <div class="container-fluid">
+                <div clas="row">
+                    <div class="col-lg col-md">
+                        <div th:if="${confirmCropName != null}" class="card">
+                            <div class="header">
+                                <b><h4 class="title" th:text="${result}"></h4></b>
+                            </div>
+                            <div class="content">
+                                <ul>
+                                    <li th:each="item: ${confirmCropName}" th:text="${item}" ></li>
+                                    <ul>
+                                        You can start planning to grow crop in the month of
+                                        <li th:if="${confirmStartMonth}" th:text="${confirmStartMonth}"></li>
+                                        This crop needs to be harvested by the month of
+                                        <li th:if="${confirmEndMonth}" th:text="${confirmEndMonth}"></li>
+                                    </ul>
+                                </ul>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
 
                     <div class="col-lg col-md">
@@ -190,12 +228,16 @@
                             <div class="content">
                                 <form>
                                     <div class="row">
-                                        <!--<div class="col-md-5">
+                                        <div class="col-md-3">
                                             <div class="form-group">
-                                                <label>Company</label>
-                                                <input type="text" class="form-control border-input" disabled placeholder="Company" value="Creative Code Inc.">
+                                                <label>Season</label>
+                                                <!--<input type="" class="form-control border-input" placeholder="soiltpye" value="Alluvial">-->
+                                                <select  class="form-control border-input" id="cropType" name="cropType">
+                                                    <option  th:value="none"></option>
+                                                    <option th:each="cropType : ${seasons}" th:value="${cropType}" th:text="${cropType}"></option>
+                                                </select>
                                             </div>
-                                        </div>-->
+                                        </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>Soil Type</label>
@@ -209,12 +251,12 @@
                                             <div class="form-group">
                                                 <label>Avg Annual Rainfall</label>
                                                 <select  class="form-control border-input" id="avgRainfall" name="avgRainfall">
-                                                    <option value="20- 40" th:value="40" >20- 40</option>
-                                                    <option value="40- 50" th:value="50">40- 50</option>
-                                                    <option value="50- 100" th:value="100">50- 100</option>
-                                                    <option value="100- 150" th:value="150">100- 150</option>
-                                                    <option value="150- 250" th:value="250">150- 250</option>
-                                                    <option value="Over 250" th:value="300">Over 250</option>
+                                                    <option value="20- 40" th:value="40" >20- 40cm</option>
+                                                    <option value="40- 50" th:value="50">40- 50cm</option>
+                                                    <option value="50- 100" th:value="100">50- 100cm</option>
+                                                    <option value="100- 150" th:value="150">100- 150cm</option>
+                                                    <option value="150- 250" th:value="250">150- 250cm</option>
+                                                    <option value="Over 250" th:value="300">Over 250cm</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -222,6 +264,7 @@
                                             <div class="form-group">
                                                 <label>Avg Annual Temperature</label>
                                                 <select  class="form-control border-input" id="avgTemperature" name="avgTemperature">
+                                                    <option th:value="-1" value="none"></option>
                                                     <option value="20.0" th:value="20.0" >Below 20</option>
                                                     <option value="22.5" th:value="22.5">20.0- 22.5</option>
                                                     <option value="25.0" th:value="25">22.5- 25.0</option>
@@ -245,13 +288,35 @@
                                     </div>
 
                                     <div class="row">
-                                        <!--<div class="col-md-2">
+                                        <div class="col-md-3">
                                             <div class="form-group">
-                                                <label>Water Source</label>
-                                                <input type="text" class="form-control border-input" placeholder="Source" value="River">
+                                                <label>Soil pH</label>
+                                                <select  class="form-control border-input" id="pH" name="pH">
+                                                    <option  th:value="-1"></option>
+                                                    <option value="4.6" th:value="4.6" ><4.6 Extremely Acid</option>
+                                                    <option value="5.5" th:value="5.5">4.6- 5.5 Strongly Acid</option>
+                                                    <option value="6.5" th:value="25">5.6- 6.5 Moderately acid</option>
+                                                    <option value="6.9" th:value="150">6.6- 6.9 Slightly acid</option>
+                                                    <option value="7" th:value="30.0">7 Neutral</option>
+                                                    <option value="7.1" th:value="30.0">7.1- 8.5 Moderately alkaline</option>
+                                                    <option value="8.5" th:value="30.0">>8.5 Alkaline</option>
+                                                </select>
                                             </div>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label>Electrical Conductivity EC</label>
+                                                <select  class="form-control border-input" id="ec" name="ec">
+                                                    <option  th:value="-1"></option>
+                                                    <option value="0" th:value="0" >0- 2 Salt free</option>
+                                                    <option value="4" th:value="5.5">4- 8 Slightly saline</option>
+                                                    <option value="8" th:value="25">8- 15 Moderately saline</option>
+                                                    <option value="15" th:value="150"><15 Highly saline</option>
+
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <!--<div class="col-md-2">
                                             <div class="form-group">
                                                 <label>Last Name</label>
                                                 <input type="text" class="form-control border-input" placeholder="Last Name" value="Faker">

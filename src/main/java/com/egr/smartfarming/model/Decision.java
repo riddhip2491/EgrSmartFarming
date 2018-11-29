@@ -9,17 +9,25 @@ public class Decision {
 
     private String soilName;
 
-    private float avgTemperature;
+    private double avgTemperature;
 
-    private float minTemperature;
+    private double minTemperature;
 
-    private float maxTemperature;
+    private double maxTemperature;
 
     private float avgRainfall;
 
     private float minRainfall;
 
     private float maxRainfall;
+
+    private String startMonth;
+
+    private String endMonth;
+
+    private float pH;
+
+    private float ec;
 
     public String getCropName() {
         return cropName;
@@ -45,27 +53,27 @@ public class Decision {
         this.soilName = soilName;
     }
 
-    public float getAvgTemperature() {
+    public double getAvgTemperature() {
         return avgTemperature;
     }
 
-    public void setAvgTemperature(float avgTemperature) {
+    public void setAvgTemperature(double avgTemperature) {
         this.avgTemperature = avgTemperature;
     }
 
-    public float getMinTemperature() {
+    public double getMinTemperature() {
         return minTemperature;
     }
 
-    public void setMinTemperature(float minTemperature) {
+    public void setMinTemperature(double minTemperature) {
         this.minTemperature = minTemperature;
     }
 
-    public float getMaxTemperature() {
+    public double getMaxTemperature() {
         return maxTemperature;
     }
 
-    public void setMaxTemperature(float maxTemperature) {
+    public void setMaxTemperature(double maxTemperature) {
         this.maxTemperature = maxTemperature;
     }
 
@@ -77,7 +85,7 @@ public class Decision {
         this.avgRainfall = avgRainfall;
     }
 
-    public float getMinRainfall() {
+    public double getMinRainfall() {
         return minRainfall;
     }
 
@@ -93,11 +101,35 @@ public class Decision {
         this.maxRainfall = maxRainfall;
     }
 
- /*   public String getUsername() {
-        return username;
+    public float getpH() {
+        return pH;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }*/
+    public void setpH(float pH) {
+        this.pH = pH;
+    }
+
+    public float getEc() {
+        return ec;
+    }
+
+    public void setEc(float ec) {
+        this.ec = ec;
+    }
+
+    public String getStartMonth() {
+        return startMonth;
+    }
+
+    public void setStartMonth(String startMonth) {
+        this.startMonth = startMonth;
+    }
+
+    public String getEndMonth() {
+        return endMonth;
+    }
+
+    public void setEndMonth(String endMonth) {
+        this.endMonth = endMonth;
+    }
 }

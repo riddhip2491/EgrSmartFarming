@@ -28,6 +28,9 @@ public class StartUpService {
         seasonRepository.save(seasonIndia);
     }
 
+    public ArrayList<String> findAllSeasons(){
+        return seasonRepository.findAllSeasons();
+    }
 
     public ArrayList<String> getSoilTypes(){
         return soilRepository.getSoilTypes();

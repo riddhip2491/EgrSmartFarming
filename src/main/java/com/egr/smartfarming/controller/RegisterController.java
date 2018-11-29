@@ -283,7 +283,7 @@ public class RegisterController {
 	}
 
     @RequestMapping(value="/decision", method = RequestMethod.GET)
-    public ModelAndView showDecision(ModelAndView modelAndView, User user,HttpServletRequest request){
+    public ModelAndView showDecision(ModelAndView modelAndView,HttpServletRequest request){
         if(request.getSession().getAttribute("user")== null){
             modelAndView.setViewName("redirect:login");
             System.out.println("SEssion null");
@@ -291,9 +291,11 @@ public class RegisterController {
         }
 	    //add soil type
         ArrayList<String> soils =startUpService.getSoilTypes();
+        ArrayList<String> seasons = startUpService.findAllSeasons();
         //Iterator iterator = soils.iterator();
         modelAndView.addObject("soilTypes", soils);
-        modelAndView.addObject("user", user);
+        modelAndView.addObject("seasons", seasons);
+        //modelAndView.addObject("user", user);
         modelAndView.setViewName("decision");
         return modelAndView;
     }
@@ -310,14 +312,28 @@ public class RegisterController {
         String lat = latitude;
         String lon = longitude;
         //Get Decision
-        String getDecision = decisionService.processDecision(decision, latitude, longitude);
+      //  ArrayList<Decision> getDecision = decisionService.processDecision(decision, latitude, longitude);
+        ArrayList<Decision> getDecision = decisionService.processFinalDecision(decision,latitude,longitude);
 
+		if (getDecision.size()> 0) {
+		    ArrayList<String> cropList = new ArrayList<>();
+		    for(int i =0; i< getDecision.size();i++){
+		        cropList.add(getDecision.get(i).getCropName());
+            }
+            Set<String> set = new LinkedHashSet<>(cropList);
+			modelAndView.addObject("result", "Result of your Selection");
+            modelAndView.addObject("confirmCropName", set);
 
-        modelAndView.addObject("confirmationMessage", getDecision);
+			modelAndView.addObject("confirmStartMonth", getDecision.get(0).getStartMonth());
+			modelAndView.addObject("confirmEndMonth", getDecision.get(0).getEndMonth());
+		} else{
+			modelAndView.addObject("alreadyRegisteredMessage", "No crop suggestion. Please select another values");
+		}
         //add soil type
         ArrayList<String> soils =startUpService.getSoilTypes();
         modelAndView.addObject("soilTypes", soils);
-
+		ArrayList<String> seasons = startUpService.findAllSeasons();
+		modelAndView.addObject("seasons", seasons);
         modelAndView.setViewName("decision");
         return modelAndView;
     }
@@ -328,7 +344,7 @@ public class RegisterController {
 		if(request.getSession().getAttribute("user")== null){
 			request.removeAttribute("user");
 			modelAndView.setViewName("redirect:login");
-			System.out.println("SEssion null");
+			System.out.println("Session null");
 		}else {
 			request.getSession().removeAttribute("user");
 

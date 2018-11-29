@@ -6,6 +6,8 @@
     <link rel="icon" type="image/png" sizes="96x96" href="assets/img/favicon.png">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
+    <link rel="icon" href="favicon.ico" />
+
     <title>Smart Farming</title>
 
     <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
@@ -48,7 +50,7 @@
         }
     </script>
 </head>
-<body>
+<body >
 
 <div class="wrapper">
     <div class="sidebar" data-background-color="white" data-active-color="danger">
@@ -67,7 +69,7 @@
 
             <ul class="nav">
                 <li>
-                    <a href="dashboard.html">
+                    <a th:href="@{/dashboard}">
                         <i class="ti-panel"></i>
                         <p>Dashboard</p>
                     </a>
@@ -79,7 +81,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="decision.html">
+                    <a th:href="@{/decision}">
                         <i class="ti-light-bulb"></i>
                         <p>Decide Crop</p>
                     </a>
