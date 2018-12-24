@@ -9,10 +9,12 @@ import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Iterator;
 
+@Component
 public class CurrentMarketScheduler {
 
 
@@ -31,8 +33,8 @@ public class CurrentMarketScheduler {
         this.currentMarketRepository = currentMarketRepository;
     }
 
-    @Scheduled(cron="0 0 6 1/1 * ? *")
-    private void getCurrentMarket(){
+    @Scheduled(cron="* 15 8 * * ?")
+    public void getCurrentMarket(){
         try {
             String uri = currentMarketApi + currentMarketKey + "&format=json";
             RestTemplate restTemplate = new RestTemplate();

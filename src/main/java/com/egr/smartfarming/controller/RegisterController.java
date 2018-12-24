@@ -29,7 +29,7 @@ public class RegisterController {
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
 	private UserService userService;
-	private EmailService emailService;
+		private EmailService emailService;
 
     private Weather weather;
     @Value("${openweather.apikey}")
@@ -238,7 +238,7 @@ public class RegisterController {
         }
 
 		//Getting curent weather condition
-        final String uri = weatherApi + "?lat=" + weather.getLatitude() + "&units=metric" + "&lon=" + weather.getLongitude() + "&APPID=" + weatherApiKey;
+        final String uri = weatherApi + "?lat=" + weather.getLatitude()  + "&lon=" + weather.getLongitude() + "&units=imperial" + "&APPID=" + weatherApiKey;
         restService.getLocationObject(uri,weather);
         //End
 
@@ -251,7 +251,9 @@ public class RegisterController {
        SoilMoisture soilMoisture = soilMoistAWSService.getLatestSoilMoistData();
         System.out.println("Latest Soil Moisture DAtA: " + soilMoisture.getBatteryVoltage());
         //modelAndView.addObject("user", user);
-        modelAndView.addObject("temperature", weather.getCurrentTemperature());
+		double tmpCel = (weather.getCurrentTemperature() - 32)*5/9;
+
+        modelAndView.addObject("temperature", Math.round(tmpCel*100.00)/100.00);
         modelAndView.addObject("description", weather.getDescription());
 		modelAndView.addObject("rainaws",soilMoisture.getBatteryVoltage());
         modelAndView.setViewName("dashboard");
@@ -342,11 +344,12 @@ public class RegisterController {
 	public ModelAndView logout(ModelAndView modelAndView,HttpServletRequest request){
 
 		if(request.getSession().getAttribute("user")== null){
-			request.removeAttribute("user");
+			//request.removeAttribute("user");
 			modelAndView.setViewName("redirect:login");
 			System.out.println("Session null");
 		}else {
-			request.getSession().removeAttribute("user");
+			request.getSession().setAttribute("user", null);
+			//request.getSession().removeAttribute("user");
 
 			modelAndView.setViewName("redirect:login");
 		}

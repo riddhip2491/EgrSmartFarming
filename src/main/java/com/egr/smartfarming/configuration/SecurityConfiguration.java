@@ -30,7 +30,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	@Autowired
-            @Qualifier("mySqlDataSource")
+	@Qualifier("mySqlDataSource")
   DataSource mySqlDatasource;
 
     @Autowired
