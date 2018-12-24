@@ -9,6 +9,7 @@ This can be restored if crops such are pulses are grown on the same plot on rota
 4. Small and poor farmers are not aware of the current market situations
 So, to resolve these problems and help farmers of India to double their income, this project "Smart Farming" was proposed:
 
+Solution:-
 This project will help farmers in deciding what crops to grow in their farm.
 It Provides farmers with current and accurate weather conditions using IoT weather station.
 This project helps in giving accurate soil moisture level using IoT soil moisture station.
